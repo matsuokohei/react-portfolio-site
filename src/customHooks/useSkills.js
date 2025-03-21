@@ -7,6 +7,15 @@ export const useSkills = () => {
 
   const [state, dispatch] = useReducer(skillReducer, initialState);
 
+  const generateLanguageCountObj = useCallback((allLanguageList) => {
+    const notNullLanguageList = allLanguageList.filter(language => language != null);
+    const uniqueLanguageList = [...new Set(notNullLanguageList)]
+    return uniqueLanguageList.map(item => ({
+      language: item,
+      count: allLanguageList.filter(language => language === item).length
+    }));
+  }, []);
+
   const fetchReposApi = useCallback(() => {
     axios.get('https://api.github.com/users/matsuokohei/repos')
       .then((response) => {
@@ -17,7 +26,7 @@ export const useSkills = () => {
       .catch(() => {
         dispatch({type: actionTypes.error});
       });
-  });
+  }, [dispatch, generateLanguageCountObj]);
 
   useEffect(() => {
     if (state.requestState !== requestStates.loading) return;
@@ -25,15 +34,6 @@ export const useSkills = () => {
   }, [state.requestState, fetchReposApi]);
 
   useEffect(() => dispatch({type: actionTypes.fetch}), [])
-
-  const generateLanguageCountObj = useCallback((allLanguageList) => {
-    const notNullLanguageList = allLanguageList.filter(language => language != null);
-    const uniqueLanguageList = [...new Set(notNullLanguageList)]
-    return uniqueLanguageList.map(item => ({
-      language: item,
-      count: allLanguageList.filter(language => language === item).length
-    }));
-  });
 
   const DEFAULT_MAX_PERCENTAGE = 100;
   const LANGUAGE_COUNT_BASE = 10;
