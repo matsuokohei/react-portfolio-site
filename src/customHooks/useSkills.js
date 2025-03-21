@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useCallback } from "react";
 import axios from 'axios'
 import { skillReducer, initialState, actionTypes } from "../reducers/skillReducer";
 import { requestStates } from "../constants";
@@ -7,7 +7,7 @@ export const useSkills = () => {
 
   const [state, dispatch] = useReducer(skillReducer, initialState);
 
-  const fetchReposApi = () => {
+  const fetchReposApi = useCallback(() => {
     axios.get('https://api.github.com/users/matsuokohei/repos')
       .then((response) => {
         const languageList = response.data.map(res => res.language);
@@ -17,7 +17,7 @@ export const useSkills = () => {
       .catch(() => {
         dispatch({type: actionTypes.error});
       });
-  };
+  });
 
   useEffect(() => {
     if (state.requestState !== requestStates.loading) return;
@@ -26,14 +26,14 @@ export const useSkills = () => {
 
   useEffect(() => dispatch({type: actionTypes.fetch}), [])
 
-  const generateLanguageCountObj = (allLanguageList) => {
+  const generateLanguageCountObj = useCallback((allLanguageList) => {
     const notNullLanguageList = allLanguageList.filter(language => language != null);
     const uniqueLanguageList = [...new Set(notNullLanguageList)]
     return uniqueLanguageList.map(item => ({
       language: item,
       count: allLanguageList.filter(language => language === item).length
     }));
-  };
+  });
 
   const DEFAULT_MAX_PERCENTAGE = 100;
   const LANGUAGE_COUNT_BASE = 10;
