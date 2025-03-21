@@ -22,7 +22,7 @@ export const useSkills = () => {
   useEffect(() => {
     if (state.requestState !== requestStates.loading) return;
     fetchReposApi();
-  }, [state.requestState]);
+  }, [state.requestState, fetchReposApi]);
 
   useEffect(() => dispatch({type: actionTypes.fetch}), [])
 
